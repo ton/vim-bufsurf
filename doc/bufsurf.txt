@@ -1,0 +1,115 @@
+*bufsurf.txt* Plugin for navigation buffers browser style            *bufsurf*
+
+CONTENTS                                                    *bufsurf-contents*
+
+ 1. Introduction                |bufsurf-introduction|
+ 2. Requirements                |bufsurf-requirements|
+ 3. Usage                       |bufsurf-usage|
+ 4. License                     |bufsurf-license|
+ 5. History                     |bufsurf-history|
+
+
+INTRODUCTION                                            *bufsurf-introduction*
+
+When editing multiple files oftentimes it would be nice to be able to go back
+and forth between the last edited files, just like a web browser allows the
+user to navigate web pages forward and backward in history. The standard
+:bn(ext) and :bp(revious) Vim commands allow to switch between next and
+previous buffers respectively, but they do no take the history of the last
+used files into account. Instead, they use the order in which the files were
+opened, which can cause confusion in case the user expects to navigate forward
+and backwards in history.  For example, in case the user opened the files A,
+B, C in the order:
+
+A, B, C
+
+an the navigation history would be
+
+A, B, C, B
+
+then :bp(revious) in the last buffer (B) would open up buffer A, where C is
+preferable. This buffer supplies the user with the commands :BufSurfNext and
+:BufSurfPrevious to navigate buffers forward and backward according to the
+navigation history.
+
+The latest version of this plugin is available at:
+
+  http://github.com/ton/vim-bufsurf
+
+Bugs can be reported there as well.
+
+
+REQUIREMENTS                                            *bufsurf-requirements*
+
+The plug-in requires Vim compiled with Ruby support. You can check for Ruby
+support by launching Vim with the --version switch:
+
+  vim --version
+
+If "+ruby" appears in the version information then your version of Vim has
+Ruby support.
+
+Another way to check is to simply try using the :ruby command from within Vim
+itself:
+
+  :ruby 1
+
+If your Vim lacks support you'll see an error message like this:
+
+  E319: Sorry, the command is not available in this version
+
+
+USAGE                                                          *bufsurf-usage*
+
+bufsurf allows the user to navigate between buffers in a window based on the
+navigation history. The navigation history is maintained per window / tab.
+You can navigate backwards in history by issuing the command:
+
+  :BufSurfBack
+
+Similarly, to navigate forward in history, issue the command:
+
+  :BufSurfForward
+
+No default keymappings are provided, but can easily be defined by the user.
+For example, to map Control+I to :BufSurfBack, and Control+O to
+:BufSurfForward, include the following lines in your Vim configuration:
+
+  nmap <silent> <C-i> :BufSurfPrevious<CR>
+  nmap <silent> <C-o> :BufSurfNext<CR>
+
+
+LICENSE                                                      *bufsurf-license*
+
+Copyright 2010 Ton van den Heuvel. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+
+HISTORY                                                      *bufsurf-history*
+
+0.1 (15 September 2010)
+
+- initial public release
+
+------------------------------------------------------------------------------
+vim:tw=78:ft=help:
