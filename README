@@ -1,4 +1,5 @@
-Vim plugin that enables surfing through buffers based on viewing history.
+Vim plugin that enables surfing through buffers based on viewing history per
+window.
 
 When editing multiple files oftentimes it would be nice to be able to go back
 and forth between the last edited files, just like a web browser allows the
@@ -18,5 +19,5 @@ A, B, C, B
 
 then :bp(revious) in the last buffer (B) would open up buffer A, where C is
 preferable. This buffer supplies the user with the commands :BufSurfNext
-and :BufSurfPrevious to navigate buffers forward and backward in the viewing
-history.
+and :BufSurfPrevious to navigate buffers forward and backward according to the
+viewing history.
