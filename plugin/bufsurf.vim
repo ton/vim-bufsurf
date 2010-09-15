@@ -1,6 +1,6 @@
 " command-t.vim
 "
-" See LICENSE for licensing details.
+" MIT license applies, see LICENSE for licensing details.
 
 if exists("g:loaded_bufsurfer")
     finish
@@ -10,14 +10,6 @@ let g:loaded_bufsurfer = 1
 
 command BufSurfPrevious :call <SID>BufSurfPrevious()
 command BufSurfNext :call <SID>BufSurfNext()
-
-" Default mappings.
-if !hasmapto('BufSurfPrevious')
-    silent! nmap <unique> <silent> <leader>i :BufSurfPrevious<CR>
-endif
-if !hasmapto('BufSurfNext')
-    silent! nmap <unique> <silent> <leader>o :BufSurfNext<CR>
-endif
 
 " Show a warning in case Ruby is not available.
 function! s:BufSurfRubyWarning()
