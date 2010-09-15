@@ -1,4 +1,4 @@
-" command-t.vim
+" bufsurf.vim
 "
 " MIT license applies, see LICENSE for licensing details.
 
@@ -8,8 +8,8 @@ endif
 
 let g:loaded_bufsurfer = 1
 
-command BufSurfPrevious :call <SID>BufSurfPrevious()
-command BufSurfNext :call <SID>BufSurfNext()
+command BufSurfBack :call <SID>BufSurfBack()
+command BufSurfForward :call <SID>BufSurfForward()
 
 " Show a warning in case Ruby is not available.
 function! s:BufSurfRubyWarning()
@@ -19,7 +19,7 @@ function! s:BufSurfRubyWarning()
 endfunction
 
 " Vim to Ruby function calls.
-function! s:BufSurfPrevious()
+function! s:BufSurfBack()
     if has('ruby')
         ruby $bufSurfer.previous
     else
@@ -27,7 +27,7 @@ function! s:BufSurfPrevious()
     endif
 endfunction
 
-function! s:BufSurfNext()
+function! s:BufSurfForward()
     if has('ruby')
         ruby $bufSurfer.next
     else
