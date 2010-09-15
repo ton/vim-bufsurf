@@ -19,17 +19,17 @@ previous buffers respectively, but they do no take the history of the last
 used files into account. Instead, they use the order in which the files were
 opened, which can cause confusion in case the user expects to navigate forward
 and backwards in history.  For example, in case the user opened the files A,
-B, C in the order:
+B, and C in the order:
 
 A, B, C
 
-an the navigation history would be
+and the navigation history would be
 
 A, B, C, B
 
 then :bp(revious) in the last buffer (B) would open up buffer A, where C is
-preferable. This buffer supplies the user with the commands :BufSurfNext and
-:BufSurfPrevious to navigate buffers forward and backward according to the
+preferable. This buffer supplies the user with the commands :BufSurfForward
+and :BufSurfBack to navigate buffers forwards and backwards according to the
 navigation history.
 
 The latest version of this plugin is available at:
@@ -75,8 +75,8 @@ No default keymappings are provided, but can easily be defined by the user.
 For example, to map Control+I to :BufSurfBack, and Control+O to
 :BufSurfForward, include the following lines in your Vim configuration:
 
-  nmap <silent> <C-i> :BufSurfPrevious<CR>
-  nmap <silent> <C-o> :BufSurfNext<CR>
+  nmap <silent> <C-i> :BufSurfBack<CR>
+  nmap <silent> <C-o> :BufSurfForward<CR>
 
 
 LICENSE                                                      *bufsurf-license*
