@@ -107,7 +107,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                      *bufsurf-history*
 
-0.1 (15 September 2010)
+0.1 (17 September 2010)
 
 - initial public release
 
