@@ -14,14 +14,14 @@ command BufSurfForward :call <SID>BufSurfForward()
 " Show a warning in case Ruby is not available.
 function! s:BufSurfRubyWarning()
   echohl WarningMsg
-  echo "bufsurf.vim requires Vim to be compiled with Ruby support, For more information type :help bufsurf"
+  echo "bufsurf.vim requires Vim to be compiled with Ruby support. For more information type :help bufsurf."
   echohl none
 endfunction
 
 " Vim to Ruby function calls.
 function! s:BufSurfBack()
     if has('ruby')
-        ruby $bufSurfer.previous
+        ruby $bufSurfer.back
     else
         call s:BufSurfRubyWarning()
     endif
@@ -29,7 +29,7 @@ endfunction
 
 function! s:BufSurfForward()
     if has('ruby')
-        ruby $bufSurfer.next
+        ruby $bufSurfer.forward
     else
         call s:BufSurfRubyWarning()
     endif
@@ -58,7 +58,7 @@ class BufSurf
         @disabled = false
     end
 
-    def next
+    def forward
         if @window_navigation_index[$curwin] < @window_history[$curwin].length - 1
             @window_navigation_index[$curwin] += 1
             @disabled = true
@@ -67,7 +67,7 @@ class BufSurf
         end
     end
 
-    def previous
+    def back
         if @window_navigation_index[$curwin] > 0
             @window_navigation_index[$curwin] -= 1
             @disabled = true
