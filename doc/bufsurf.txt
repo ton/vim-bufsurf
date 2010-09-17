@@ -72,7 +72,7 @@ Similarly, to navigate forward in history, issue the command:
   :BufSurfForward
 
 No default keymappings are provided, but can easily be defined by the user.
-For example, to map Control+I to :BufSurfBack, and Control+O to
+For example, to map Control+i to :BufSurfBack, and Control+o to
 :BufSurfForward, include the following lines in your Vim configuration:
 
   nmap <silent> <C-i> :BufSurfBack<CR>
