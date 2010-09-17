@@ -1,4 +1,4 @@
-*bufsurf.txt* Plugin for navigation buffers browser style            *bufsurf*
+*bufsurf.txt* Plugin for navigating buffers webbrowser style         *bufsurf*
 
 CONTENTS                                                    *bufsurf-contents*
 
@@ -107,7 +107,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                      *bufsurf-history*
 
-0.1 (17 September 2010)
+v0.1 (17 September 2010)
 
 - initial public release
 
