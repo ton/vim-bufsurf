@@ -115,7 +115,7 @@ class BufSurf
     end
 
     def disabled?
-        return @disabled || @ignore_buffers.any? { |ignore| (/#{ignore}/ =~ VIM::evaluate('bufname(#{$curbuf.number})')) != nil }
+        return @disabled || @ignore_buffers.any? { |ignore| (/#{ignore}/ =~ VIM::evaluate("bufname(#{$curbuf.number})")) != nil }
     end
 end
 
