@@ -2,11 +2,20 @@
 "
 " MIT license applies, see LICENSE for licensing details.
 
-if exists("g:loaded_bufsurfer")
+if exists('g:loaded_bufsurfer')
     finish
 endif
 
 let g:loaded_bufsurfer = 1
+
+" Initialises var to value in case the variable does not yet exist.
+function! s:InitVariable(var, value)
+    if !exists(a:var)
+        exec 'let ' . a:var . ' = ' . "'" . a:value . "'"
+    endif
+endfunction
+
+call s:InitVariable('g:BufSurfIgnore', '')
 
 command BufSurfBack :call <SID>BufSurfBack()
 command BufSurfForward :call <SID>BufSurfForward()
@@ -14,7 +23,7 @@ command BufSurfForward :call <SID>BufSurfForward()
 " Show a warning in case Ruby is not available.
 function! s:BufSurfRubyWarning()
   echohl WarningMsg
-  echo "bufsurf.vim requires Vim to be compiled with Ruby support. For more information type :help bufsurf."
+  echo 'bufsurf.vim requires Vim to be compiled with Ruby support, For more information type :help bufsurf'
   echohl none
 endfunction
 
@@ -56,6 +65,7 @@ class BufSurf
 
         # disabled is used to temporarily disable the append and delete methods that are also called when surfing through the buffer list.
         @disabled = false
+        @ignore_buffers = VIM::evaluate('g:BufSurfIgnore').split(',')
     end
 
     def forward
@@ -77,7 +87,7 @@ class BufSurf
     end
 
     def append
-        return if @disabled
+        return if disabled?
 
         # In case no navigation history exists for the current window, initialize the navigation history.
         if not @window_history.has_key?($curwin)
@@ -93,7 +103,7 @@ class BufSurf
     end
 
     def delete
-        return if @disabled
+        return if disabled?
 
         # Remove any history of the current buffer, and adjust the current navigation index accordingly. Use abuf here instead of curbuf, since for
         # the BufUnload event, the current buffer might not be equal to the buffer that is unloaded (abuf).
@@ -102,6 +112,10 @@ class BufSurf
             @window_navigation_index[$curwin] -= 1 if @window_history[$curwin][i] == buf_nr
         end
         @window_history[$curwin].delete(buf_nr)
+    end
+
+    def disabled?
+        return @disabled || @ignore_buffers.any? { |ignore| (/#{ignore}/ =~ VIM::evaluate('bufname(#{$curbuf.number})')) != nil }
     end
 end
 
