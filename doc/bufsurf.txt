@@ -41,22 +41,11 @@ Bugs can be reported there as well.
 
 REQUIREMENTS                                            *bufsurf-requirements*
 
-The plug-in requires Vim compiled with Ruby support. You can check for Ruby
-support by launching Vim with the --version switch:
+This plug-in has no additional requirements.
 
-  vim --version
+Note
 
-If "+ruby" appears in the version information then your version of Vim has
-Ruby support.
-
-Another way to check is to simply try using the :ruby command from within Vim
-itself:
-
-  :ruby 1
-
-If your Vim lacks support you'll see an error message like this:
-
-  E319: Sorry, the command is not available in this version
+This plug-in so far has only been tested with Vim 7.3.
 
 
 USAGE                                                          *bufsurf-usage*
@@ -77,6 +66,23 @@ For example, to map Control+i to :BufSurfBack, and Control+o to
 
   nmap <silent> <C-i> :BufSurfBack<CR>
   nmap <silent> <C-o> :BufSurfForward<CR>
+
+OPTIONS                                                      *bufsurf-options*
+
+To set an option, include a line like the following in your ~/.vimrc:
+
+    let g:BufSurfIgnore = '\[BufExplorer\]'
+
+The following is a list of all available options: 
+
+
+                                                             *g:BufSurfIgnore*
+    |g:BufSurfIgnore|                   comma separated list of patterns
+
+        Comma separated list of regular expressions matching buffer names
+        that should be ignored in the bookkeeping process of the plug-in. This
+        prevents any buffer whose name matches one or more regular expressions
+        in the list from showing up in the navigation history.
 
 
 LICENSE                                                      *bufsurf-license*
@@ -106,6 +112,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 HISTORY                                                      *bufsurf-history*
+
+v0.2 (19 March 2011)
+
+- rewritten in vimscript (dropped Ruby dependency)
+- support to ignore specific buffer names in the history bookkeeping
 
 v0.1 (17 September 2010)
 
