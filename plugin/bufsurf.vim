@@ -1,7 +1,6 @@
 " bufsurf.vim
 "
 " MIT license applies, see LICENSE for licensing details.
-
 if exists('g:loaded_bufsurfer')
     finish
 endif
@@ -9,7 +8,7 @@ endif
 let g:loaded_bufsurfer = 1
 
 " Initialises var to value in case the variable does not yet exist.
-function! s:InitVariable(var, value)
+function s:InitVariable(var, value)
     if !exists(a:var)
         exec 'let ' . a:var . ' = ' . "'" . a:value . "'"
     endif
@@ -17,108 +16,98 @@ endfunction
 
 call s:InitVariable('g:BufSurfIgnore', '')
 
-command BufSurfBack :call <SID>BufSurfBack()
-command BufSurfForward :call <SID>BufSurfForward()
+command BufSurfBack :call <SID>BufSurfBack(winnr())
+command BufSurfForward :call <SID>BufSurfForward(winnr())
 
-" Show a warning in case Ruby is not available.
-function! s:BufSurfRubyWarning()
-  echohl WarningMsg
-  echo 'bufsurf.vim requires Vim to be compiled with Ruby support, For more information type :help bufsurf'
-  echohl none
-endfunction
+" Mapping from a window ID to a list of opened buffers.
+let s:window_history = {}
 
-" Vim to Ruby function calls.
-function! s:BufSurfBack()
-    if has('ruby')
-        ruby $bufSurfer.back
-    else
-        call s:BufSurfRubyWarning()
+" Mapping from a window ID to an index in the list of opened buffers.
+let s:window_history_index = {}
+
+" List of buffer names that we should not track.
+let s:ignore_buffers = split(g:BufSurfIgnore, ',')
+
+" Indicates whether the plugin is enabled or not. 
+let s:disabled = 0
+
+" Open the previous buffer in the navigation history for window identified by winnr.
+function s:BufSurfBack(winnr)
+    if s:window_history_index[a:winnr] > 0
+        let s:window_history_index[a:winnr] -= 1
+        let s:disabled = 1
+        execute "b " . s:window_history[a:winnr][s:window_history_index[a:winnr]]
+        let s:disabled = 0
     endif
 endfunction
 
-function! s:BufSurfForward()
-    if has('ruby')
-        ruby $bufSurfer.forward
-    else
-        call s:BufSurfRubyWarning()
+" Open the next buffer in the navigation history for window identified by winnr.
+function s:BufSurfForward(winnr)
+    if s:window_history_index[a:winnr] < len(s:window_history[a:winnr]) - 1
+        let s:window_history_index[a:winnr] += 1
+        let s:disabled = 1
+        execute "b " . s:window_history[a:winnr][s:window_history_index[a:winnr]]
+        let s:disabled = 0
     endif
 endfunction
 
-if !has('ruby')
-  finish
-endif
+" Add the given buffer number to the navigation history for the window identified by winnr.
+function s:BufSurfAppend(bufnr, winnr)
+    if s:BufSurfIsDisabled(a:bufnr)
+        return
+    endif
+
+    " In case no navigation history exists for the current window, initialize the navigation history.
+    if !has_key(s:window_history, a:winnr)
+        let s:window_history[a:winnr] = []
+        let s:window_history_index[a:winnr] = 0
+    " In case the newly added buffer is the same as the previously active buffer, ignore it.
+    elseif s:window_history[a:winnr][s:window_history_index[a:winnr]] == a:bufnr
+        return
+    else
+        let s:window_history_index[a:winnr] += 1
+    endif
+    let s:window_history[a:winnr] = insert(s:window_history[a:winnr], a:bufnr, s:window_history_index[a:winnr])
+endfunction
+
+" Remove buffer with number bufnr from all navigation histories.
+function s:BufSurfDelete(bufnr)
+    if s:BufSurfIsDisabled(a:bufnr)
+        return
+    endif
+
+    " Remove the buffer from all window histories.
+    for [winnr, buflist] in items(s:window_history)
+        call filter(buflist, 'v:val !=' . a:bufnr)
+
+        " In case the current window history index is no longer valid, move it within boundaries.
+        if len(s:window_history[winnr]) == 0
+            unlet s:window_history[winnr]
+            unlet s:window_history_index[winnr]
+        elseif s:window_history_index[winnr] >= len(s:window_history[winnr])
+            let s:window_history_index[winnr] = len(s:window_history[winnr]) - 1
+        endif
+    endfor
+endfunction
+
+function s:BufSurfIsDisabled(bufnr)
+    if s:disabled
+        return 1
+    endif
+
+    for bufpattern in s:ignore_buffers
+        if match(bufname(a:bufnr), bufpattern) != -1
+            return 1
+        endif
+    endfor
+
+    return 0
+endfunction
 
 " Setup the autocommands that handle MRU buffer ordering per window.
 augroup BufSurf
   autocmd!
-  autocmd BufEnter * ruby $bufSurfer.append
-  autocmd WinEnter * ruby $bufSurfer.append
-  autocmd BufUnload * ruby $bufSurfer.delete
+  autocmd BufEnter * :call s:BufSurfAppend(winbufnr(winnr()), winnr())
+  autocmd WinEnter * :call s:BufSurfAppend(winbufnr(winnr()), winnr())
+  autocmd BufDelete * :call s:BufSurfDelete(winbufnr(winnr()))
 augroup End
-
-ruby << EOF
-
-class BufSurf
-    def initialize
-        @window_history = {}
-        @window_navigation_index = {}
-
-        # disabled is used to temporarily disable the append and delete methods that are also called when surfing through the buffer list.
-        @disabled = false
-        @ignore_buffers = VIM::evaluate('g:BufSurfIgnore').split(',')
-    end
-
-    def forward
-        if @window_navigation_index[$curwin] < @window_history[$curwin].length - 1
-            @window_navigation_index[$curwin] += 1
-            @disabled = true
-            VIM::command "b #{@window_history[$curwin][@window_navigation_index[$curwin]]}"
-            @disabled = false
-        end
-    end
-
-    def back
-        if @window_navigation_index[$curwin] > 0
-            @window_navigation_index[$curwin] -= 1
-            @disabled = true
-            VIM::command "b #{@window_history[$curwin][@window_navigation_index[$curwin]]}"
-            @disabled = false
-        end
-    end
-
-    def append
-        return if disabled?
-
-        # In case no navigation history exists for the current window, initialize the navigation history.
-        if not @window_history.has_key?($curwin)
-            @window_history[$curwin] = []
-            @window_navigation_index[$curwin] = 0
-        # In case the newly added buffer is the same as the previously active buffer, ignore it.
-        elsif @window_history[$curwin][@window_navigation_index[$curwin]] == $curbuf.number
-            return
-        else
-            @window_navigation_index[$curwin] += 1
-        end
-        @window_history[$curwin].insert(@window_navigation_index[$curwin], $curbuf.number)
-    end
-
-    def delete
-        return if disabled?
-
-        # Remove any history of the current buffer, and adjust the current navigation index accordingly. Use abuf here instead of curbuf, since for
-        # the BufUnload event, the current buffer might not be equal to the buffer that is unloaded (abuf).
-        buf_nr = VIM::evaluate('expand("<abuf>")')
-        for i in 0..@window_navigation_index[$curwin]
-            @window_navigation_index[$curwin] -= 1 if @window_history[$curwin][i] == buf_nr
-        end
-        @window_history[$curwin].delete(buf_nr)
-    end
-
-    def disabled?
-        return @disabled || @ignore_buffers.any? { |ignore| (/#{ignore}/ =~ VIM::evaluate("bufname(#{$curbuf.number})")) != nil }
-    end
-end
-
-$bufSurfer = BufSurf.new
-
-EOF
