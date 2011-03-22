@@ -67,6 +67,7 @@ For example, to map Control+i to :BufSurfBack, and Control+o to
   nmap <silent> <C-i> :BufSurfBack<CR>
   nmap <silent> <C-o> :BufSurfForward<CR>
 
+
 OPTIONS                                                      *bufsurf-options*
 
 To set an option, include a line like the following in your ~/.vimrc:
@@ -83,6 +84,10 @@ The following is a list of all available options:
         that should be ignored in the bookkeeping process of the plug-in. This
         prevents any buffer whose name matches one or more regular expressions
         in the list from showing up in the navigation history.
+
+    |g:BufSurfMessages|                 Boolean value; either 0 or 1
+
+        Indicates whether BufSurf (warning) messages should be displayed.
 
 
 LICENSE                                                      *bufsurf-license*
