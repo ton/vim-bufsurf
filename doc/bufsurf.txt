@@ -121,7 +121,7 @@ HISTORY                                                      *bufsurf-history*
 v0.2 (19 March 2011)
 
 - rewritten in vimscript (dropped Ruby dependency)
-- support to ignore specific buffer names in the history bookkeeping
+- support ignoring specific buffer names in the history bookkeeping
 
 v0.1 (17 September 2010)
 
