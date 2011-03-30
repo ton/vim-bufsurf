@@ -117,6 +117,14 @@ function s:BufSurfEcho(msg)
     endif
 endfunction
 
+" In case Vim is started and files have been specified on the command line, no auto commands are triggered for it. Therefore, we loop over the list of
+" buffers once, and append them.
+let s:i = 1
+while bufexists(s:i)
+    call s:BufSurfAppend(s:i, winnr())
+    let s:i += 1
+endwhile
+
 " Setup the autocommands that handle MRU buffer ordering per window.
 augroup BufSurf
   autocmd!
