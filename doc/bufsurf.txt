@@ -118,6 +118,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                                      *bufsurf-history*
 
+v0.3 (30 March 2011)
+
+- fix issue #2, initialize navigation history with files opened from the
+  command line
+
 v0.2 (19 March 2011)
 
 - rewritten in vimscript (dropped Ruby dependency)
