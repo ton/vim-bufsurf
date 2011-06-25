@@ -1,112 +1,112 @@
-" bufsurf.vim
-"
-" MIT license applies, see LICENSE for licensing details.
 if exists('g:loaded_bufsurfer')
     finish
 endif
 
 let g:loaded_bufsurfer = 1
 
-" Initialises var to value in case the variable does not yet exist.
-function s:InitVariable(var, value)
-    if !exists(a:var)
-        exec 'let ' . a:var . ' = ' . "'" . a:value . "'"
-    endif
+command -nargs=0 BufSurfBack         :call <SID>BufSurfBack()
+command -nargs=0 BufSurfForward      :call <SID>BufSurfForward()
+command -nargs=0 BufSurfHistory      :call <SID>BufSurfHistory()
+command -nargs=0 BufSurfHistoryClear :call setloclist(0, [], 'r')
+
+let g:BufSurfMessages = exists('g:BufSurfMessages') ? g:BufSurfMessages : 1
+let g:BufSurfClearHistory = exists('g:BufSurfClearHistory') ? g:BufSurfClearHistory : 1
+let s:ignore_buffers = exists('g:BufSurfIgnore') ? split(g:BufSurfIgnore, ',') : []
+
+function! <SID>BufSurfBack()
+	if ! exists('w:bufsurf_offset')
+		let w:bufsurf_offset = 0
+	endif
+	if w:bufsurf_offset < len(getloclist(0)) - 1
+		let w:bufsurf_offset += 1
+		lnext
+	else
+		call s:BufSurfEcho("reached end of window navigation history")
+	endif
 endfunction
 
-call s:InitVariable('g:BufSurfIgnore', '')
-call s:InitVariable('g:BufSurfMessages', 1)
-
-command BufSurfBack :call <SID>BufSurfBack(winnr())
-command BufSurfForward :call <SID>BufSurfForward(winnr())
-
-" Mapping from a window ID to a list of opened buffers.
-let s:window_history = {}
-
-" Mapping from a window ID to an index in the list of opened buffers.
-let s:window_history_index = {}
-
-" List of buffer names that we should not track.
-let s:ignore_buffers = split(g:BufSurfIgnore, ',')
-
-" Indicates whether the plugin is enabled or not. 
-let s:disabled = 0
-
-" Open the previous buffer in the navigation history for window identified by winnr.
-function s:BufSurfBack(winnr)
-    if s:window_history_index[a:winnr] > 0
-        let s:window_history_index[a:winnr] -= 1
-        let s:disabled = 1
-        execute "b " . s:window_history[a:winnr][s:window_history_index[a:winnr]]
-        let s:disabled = 0
-    else
-        call s:BufSurfEcho("reached start of window navigation history")
-    endif
+function! <SID>BufSurfForward()
+	if ! exists('w:bufsurf_offset') || w:bufsurf_offset < 0
+		let w:bufsurf_offset = 0
+	endif
+	if w:bufsurf_offset > 0
+		let w:bufsurf_offset -= 1
+		lprevious
+	else
+		call s:BufSurfEcho("reached start of window navigation history")
+	endif
 endfunction
 
-" Open the next buffer in the navigation history for window identified by winnr.
-function s:BufSurfForward(winnr)
-    if s:window_history_index[a:winnr] < len(s:window_history[a:winnr]) - 1
-        let s:window_history_index[a:winnr] += 1
-        let s:disabled = 1
-        execute "b " . s:window_history[a:winnr][s:window_history_index[a:winnr]]
-        let s:disabled = 0
-    else
-        call s:BufSurfEcho("reached end of window navigation history")
-    endif
+function! <SID>BufSurfUpdateOffset()
+	let g:bufsurf_offset = line('.') - 1
+	call feedkeys("\<CR>", 'n')
 endfunction
 
-" Add the given buffer number to the navigation history for the window identified by winnr.
-function s:BufSurfAppend(bufnr, winnr)
-    if s:BufSurfIsDisabled(a:bufnr)
-        return
-    endif
-
-    " In case no navigation history exists for the current window, initialize the navigation history.
-    if !has_key(s:window_history, a:winnr)
-        let s:window_history[a:winnr] = []
-        let s:window_history_index[a:winnr] = 0
-    " In case the newly added buffer is the same as the previously active buffer, ignore it.
-    elseif s:window_history[a:winnr][s:window_history_index[a:winnr]] == a:bufnr
-        return
-    else
-        let s:window_history_index[a:winnr] += 1
-    endif
-    let s:window_history[a:winnr] = insert(s:window_history[a:winnr], a:bufnr, s:window_history_index[a:winnr])
+function! <SID>BufSurfHistory()
+	" this workaround is needed, because it's impossible to tell whether the
+	" location or the quickfix windows was opened
+	lopen
+	nnoremap <buffer> <silent> <CR> :call <SID>BufSurfUpdateOffset()<CR>
 endfunction
 
-" Remove buffer with number bufnr from all navigation histories.
-function s:BufSurfDelete(bufnr)
-    if s:BufSurfIsDisabled(a:bufnr)
-        return
-    endif
+function! s:BufSurfAppend(bufnr)
+	if ! exists('w:bufsurf_offset')
+		let w:bufsurf_offset = 0
+	endif
 
-    " Remove the buffer from all window histories.
-    for [winnr, buflist] in items(s:window_history)
-        call filter(buflist, 'v:val !=' . a:bufnr)
+	" workaround for transporting the new offset from the locationlist window
+	" to the current window
+	let l:bufsurf_offset_old = -1
+	if exists('g:bufsurf_offset')
+		let l:bufsurf_offset_old = w:bufsurf_offset
+		let w:bufsurf_offset = g:bufsurf_offset
+		unlet g:bufsurf_offset
+	endif
 
-        " In case the current window history index is no longer valid, move it within boundaries.
-        if len(s:window_history[winnr]) == 0
-            unlet s:window_history[winnr]
-            unlet s:window_history_index[winnr]
-        elseif s:window_history_index[winnr] >= len(s:window_history[winnr])
-            let s:window_history_index[winnr] = len(s:window_history[winnr]) - 1
-        endif
-    endfor
+	let l:bn = bufname(a:bufnr)
+	if &buftype == 'quickfix' || l:bn == ''
+		return
+	endif
+
+	for n in s:ignore_buffers
+		if match(l:bn, n) == -1
+			return
+		endif
+	endfor
+
+	let l:loclist = getloclist(0)
+	if len(l:loclist) <= w:bufsurf_offset
+		let w:bufsurf_offset = 0
+	endif
+
+	if len(l:loclist) == 0 || l:loclist[w:bufsurf_offset]['bufnr'] != a:bufnr
+		if l:bufsurf_offset_old >= 0 && l:loclist[l:bufsurf_offset_old]['bufnr'] == a:bufnr
+			" when selecting an item in the locationlist this function is
+			" also triggered when entering the current (old) buffer. This
+			" should not lead to a new item in surf history
+			return
+		elseif w:bufsurf_offset > 0 && len(l:loclist) > w:bufsurf_offset && l:loclist[w:bufsurf_offset - 1]['bufnr'] == a:bufnr
+			" the same buffer can not be appended in history in consecutive order
+			return
+		endif
+
+		" insert new entry in history
+		call setloclist(0, insert(l:loclist, {'bufnr': a:bufnr, 'filename': 3, 'lnum': line('.'), 'text': strftime('%Y-%m-%d %H:%M:%S')}, w:bufsurf_offset), 'r')
+
+		" workaround be on the right loclist item after updateing the
+		" loclist; variable is interpreted by function s:BufSurfJump()
+		if w:bufsurf_offset != 0
+			let w:bufsurf_go = w:bufsurf_offset + 1
+		endif
+	endif
 endfunction
 
-function s:BufSurfIsDisabled(bufnr)
-    if s:disabled
-        return 1
-    endif
-
-    for bufpattern in s:ignore_buffers
-        if match(bufname(a:bufnr), bufpattern) != -1
-            return 1
-        endif
-    endfor
-
-    return 0
+function! s:BufSurfJump()
+	if exists('w:bufsurf_go')
+		let l:go = w:bufsurf_go
+		unlet w:bufsurf_go
+		exec ':ll ' . l:go
+	endif
 endfunction
 
 function s:BufSurfEcho(msg)
@@ -117,18 +117,11 @@ function s:BufSurfEcho(msg)
     endif
 endfunction
 
-" In case Vim is started and files have been specified on the command line, no auto commands are triggered for it. Therefore, we loop over the list of
-" buffers once, and append them.
-let s:i = 1
-while bufexists(s:i)
-    call s:BufSurfAppend(s:i, winnr())
-    let s:i += 1
-endwhile
-
-" Setup the autocommands that handle MRU buffer ordering per window.
 augroup BufSurf
-  autocmd!
-  autocmd BufEnter * :call s:BufSurfAppend(winbufnr(winnr()), winnr())
-  autocmd WinEnter * :call s:BufSurfAppend(winbufnr(winnr()), winnr())
-  autocmd BufDelete * :call s:BufSurfDelete(winbufnr(winnr()))
+	autocmd!
+	autocmd BufEnter * :call s:BufSurfAppend(winbufnr(winnr())) | call s:BufSurfJump()
+	autocmd WinEnter * :if exists('w:bufsurf_offset') == 0 && exists('g:BufSurfClearHistory') && g:BufSurfClearHistory != 0 | exec 'BufSurfHistoryClear' | call s:BufSurfAppend(winbufnr(winnr())) | call s:BufSurfJump() | endif
+	" TODO maybe BufWipeout should be implemented. The downside is that only
+	" for the current window it makes sense to clean up the history. Better
+	" use :bd instead of :bw - that solves the problem
 augroup End

@@ -60,6 +60,14 @@ Similarly, to navigate forward in history, issue the command:
 
   :BufSurfForward
 
+To display the history for the current window, issue the command:
+
+  :BufSurfHistory
+
+To manually clear the history for the current window, issue the command:
+
+  :BufSurfHistoryClear
+
 No default keymappings are provided, but can easily be defined by the user.
 For example, to map Control+i to :BufSurfBack, and Control+o to
 :BufSurfForward, include the following lines in your Vim configuration:
@@ -74,20 +82,27 @@ To set an option, include a line like the following in your ~/.vimrc:
 
     let g:BufSurfIgnore = '\[BufExplorer\]'
 
-The following is a list of all available options: 
+The following is a list of all available options:
 
 
                                                              *g:BufSurfIgnore*
-    |g:BufSurfIgnore|                   comma separated list of patterns
+    |g:BufSurfIgnore|                   comma separated list of patterns (default: '')
 
         Comma separated list of regular expressions matching buffer names
         that should be ignored in the bookkeeping process of the plug-in. This
         prevents any buffer whose name matches one or more regular expressions
         in the list from showing up in the navigation history.
 
-    |g:BufSurfMessages|                 Boolean value; either 0 or 1
+    |g:BufSurfMessages|                 Boolean value; either 0 or 1 (default: 1)
 
         Indicates whether BufSurf (warning) messages should be displayed.
+
+    |g:BufSurfClearHistory|             Boolean value; either 0 or 1 (default: 0)
+
+		BufSurf relies on vim's location list feature. For split windows or
+		tabs the history of the last window is cloned. This can automatically
+		be prevented by setting this variable to 1 or by manually running
+		:BufSurfHistoryClear.
 
 
 LICENSE                                                      *bufsurf-license*
