@@ -1,11 +1,11 @@
 " bufsurf.vim
 "
 " MIT license applies, see LICENSE for licensing details.
-if exists('g:loaded_bufsurfer')
+if exists('g:loaded_bufsurf')
     finish
 endif
 
-let g:loaded_bufsurfer = 1
+let g:loaded_bufsurf = 1
 
 " Initialises var to value in case the variable does not yet exist.
 function s:InitVariable(var, value)
