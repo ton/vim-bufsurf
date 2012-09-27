@@ -117,6 +117,8 @@ function s:BufSurfList(winnr)
     call s:BufSurfEcho("window buffer navigation history (* = current): " . join(l:buffer_names, ', '))
 endfunction
 
+" Returns whether recording the buffer navigation history is disabled for the
+" given buffer number *bufnr*.
 function s:BufSurfIsDisabled(bufnr)
     if s:disabled
         return 1
@@ -140,7 +142,8 @@ function s:BufSurfEcho(msg)
     endif
 endfunction
 
-" In case Vim is started and files have been specified on the command line, no auto commands are triggered for it. Therefore, we loop over the list of
+" In case Vim is started and files have been specified on the command line, no
+" auto commands are triggered for it.  Therefore, we loop over the list of
 " buffers once, and append them.
 let s:i = 1
 while bufexists(s:i)
