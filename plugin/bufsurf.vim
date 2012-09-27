@@ -19,6 +19,7 @@ call s:InitVariable('g:BufSurfMessages', 1)
 
 command BufSurfBack :call <SID>BufSurfBack(winnr())
 command BufSurfForward :call <SID>BufSurfForward(winnr())
+command BufSurfList :call <SID>BufSurfList(winnr())
 
 " Mapping from a window ID to a list of opened buffers.
 let s:window_history = {}
@@ -101,6 +102,19 @@ function s:BufSurfDelete(bufnr)
             let s:window_history_index[winnr] = len(s:window_history[winnr]) - 1
         endif
     endfor
+endfunction
+
+" Displays buffer navigation history for the current window.
+function s:BufSurfList(winnr)
+    let l:buffer_names = []
+    for l:bufnr in s:window_history[a:winnr]
+        let l:buffer_name = bufname(l:bufnr)
+        if bufnr("%") == l:bufnr
+            let l:buffer_name .= "*"
+        endif
+        let l:buffer_names = l:buffer_names + [l:buffer_name]
+    endfor
+    call s:BufSurfEcho("window buffer navigation history (* = current): " . join(l:buffer_names, ', '))
 endfunction
 
 function s:BufSurfIsDisabled(bufnr)

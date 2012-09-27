@@ -67,6 +67,11 @@ For example, to map Control+i to :BufSurfBack, and Control+o to
   nmap <silent> <C-i> :BufSurfBack<CR>
   nmap <silent> <C-o> :BufSurfForward<CR>
 
+To get an overview of the buffer navigation history for the current window
+issue:
+
+  :BufSurfList
+
 
 OPTIONS                                                      *bufsurf-options*
 
