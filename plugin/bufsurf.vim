@@ -32,7 +32,8 @@ let s:ignore_buffers = split(g:BufSurfIgnore, ',')
 " Indicates whether the plugin is enabled or not. 
 let s:disabled = 0
 
-" Open the previous buffer in the navigation history for window identified by winnr.
+" Open the previous buffer in the navigation history for window identified by
+" winnr.
 function s:BufSurfBack(winnr)
     if s:window_history_index[a:winnr] > 0
         let s:window_history_index[a:winnr] -= 1
@@ -44,7 +45,8 @@ function s:BufSurfBack(winnr)
     endif
 endfunction
 
-" Open the next buffer in the navigation history for window identified by winnr.
+" Open the next buffer in the navigation history for window identified by
+" winnr.
 function s:BufSurfForward(winnr)
     if s:window_history_index[a:winnr] < len(s:window_history[a:winnr]) - 1
         let s:window_history_index[a:winnr] += 1
@@ -56,17 +58,22 @@ function s:BufSurfForward(winnr)
     endif
 endfunction
 
-" Add the given buffer number to the navigation history for the window identified by winnr.
+" Add the given buffer number to the navigation history for the window
+" identified by winnr.
 function s:BufSurfAppend(bufnr, winnr)
+    " In case the specified buffer should be ignored, do not append it to the
+    " navigation history of the window.
     if s:BufSurfIsDisabled(a:bufnr)
         return
     endif
 
-    " In case no navigation history exists for the current window, initialize the navigation history.
+    " In case no navigation history exists for the current window, initialize
+    " the navigation history.
     if !has_key(s:window_history, a:winnr)
         let s:window_history[a:winnr] = []
         let s:window_history_index[a:winnr] = 0
-    " In case the newly added buffer is the same as the previously active buffer, ignore it.
+    " In case the newly added buffer is the same as the previously active
+    " buffer, ignore it.
     elseif s:window_history[a:winnr][s:window_history_index[a:winnr]] == a:bufnr
         return
     else
@@ -85,7 +92,8 @@ function s:BufSurfDelete(bufnr)
     for [winnr, buflist] in items(s:window_history)
         call filter(buflist, 'v:val !=' . a:bufnr)
 
-        " In case the current window history index is no longer valid, move it within boundaries.
+        " In case the current window history index is no longer valid, move it
+        " within boundaries.
         if len(s:window_history[winnr]) == 0
             unlet s:window_history[winnr]
             unlet s:window_history_index[winnr]
@@ -109,6 +117,7 @@ function s:BufSurfIsDisabled(bufnr)
     return 0
 endfunction
 
+" Echo a BufSurf message in the Vim status line.
 function s:BufSurfEcho(msg)
     if g:BufSurfMessages == 1
         echohl WarningMsg
