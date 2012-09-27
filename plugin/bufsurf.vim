@@ -71,15 +71,30 @@ function s:BufSurfAppend(bufnr, winnr)
     " In case no navigation history exists for the current window, initialize
     " the navigation history.
     if !has_key(s:window_history, a:winnr)
+        " Add all buffers loaded for the current window to the navigation
+        " history.
+        let s:i = a:bufnr + 1
         let s:window_history[a:winnr] = []
+        while bufexists(s:i)
+            call add(s:window_history[a:winnr], s:i)
+            let s:i += 1
+        endwhile
+
+        " Make sure that the current buffer will be inserted at the start of
+        " the window navigation list.
         let s:window_history_index[a:winnr] = 0
+
     " In case the newly added buffer is the same as the previously active
     " buffer, ignore it.
     elseif s:window_history[a:winnr][s:window_history_index[a:winnr]] == a:bufnr
         return
+
+    " Add the current buffer to the buffer navigation history list of the
+    " current window.
     else
         let s:window_history_index[a:winnr] += 1
     endif
+
     let s:window_history[a:winnr] = insert(s:window_history[a:winnr], a:bufnr, s:window_history_index[a:winnr])
 endfunction
 
@@ -141,15 +156,6 @@ function s:BufSurfEcho(msg)
         echohl None
     endif
 endfunction
-
-" In case Vim is started and files have been specified on the command line, no
-" auto commands are triggered for it.  Therefore, we loop over the list of
-" buffers once, and append them.
-let s:i = 1
-while bufexists(s:i)
-    call s:BufSurfAppend(s:i, winnr())
-    let s:i += 1
-endwhile
 
 " Setup the autocommands that handle MRU buffer ordering per window.
 augroup BufSurf
