@@ -87,7 +87,16 @@ function s:BufSurfAppend(bufnr)
         let w:history_index += 1
     endif
 
-    let w:history = insert(w:history, a:bufnr, w:history_index)
+    " In case the buffer that is being appended is already the next buffer in
+    " the history, ignore it. This happens in case a buffer is loaded that is
+    " also the next buffer in the forward browsing history. Thus, this
+    " prevents duplicate entries of the same buffer occurring next to each
+    " other in the browsing history.
+    let l:is_buffer_listed = (w:history_index != len(w:history) && w:history[w:history_index] == a:bufnr)
+
+    if !l:is_buffer_listed
+        let w:history = insert(w:history, a:bufnr, w:history_index)
+    endif
 endfunction
 
 " Displays buffer navigation history for the current window.
