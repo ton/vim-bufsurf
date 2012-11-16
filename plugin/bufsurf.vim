@@ -128,6 +128,21 @@ function s:BufSurfIsDisabled(bufnr)
     return 0
 endfunction
 
+" Remove buffer with number bufnr from all navigation histories.
+function s:BufSurfDelete(bufnr)
+    if s:BufSurfIsDisabled(a:bufnr)
+        return
+    endif
+
+    " Remove the buffer from all window histories.
+    call filter(w:history, 'v:val !=' . a:bufnr)
+
+    " In case the current window history index is no longer valid, move it within boundaries.
+    if w:history_index >= len(w:history)
+        let w:history_index = len(w:history) - 1
+    endif
+endfunction
+
 " Echo a BufSurf message in the Vim status line.
 function s:BufSurfEcho(msg)
     if g:BufSurfMessages == 1
@@ -142,4 +157,5 @@ augroup BufSurf
   autocmd!
   autocmd BufEnter * :call s:BufSurfAppend(winbufnr(winnr()))
   autocmd WinEnter * :call s:BufSurfAppend(winbufnr(winnr()))
+  autocmd BufWipeout * :call s:BufSurfDelete(winbufnr(winnr()))
 augroup End
