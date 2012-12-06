@@ -78,7 +78,7 @@ function s:BufSurfAppend(bufnr)
 
     " In case the newly added buffer is the same as the previously active
     " buffer, ignore it.
-    elseif w:history[w:history_index] == a:bufnr
+    elseif w:history_index != -1 && w:history[w:history_index] == a:bufnr
         return
 
     " Add the current buffer to the buffer navigation history list of the
