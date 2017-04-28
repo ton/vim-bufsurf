@@ -30,7 +30,7 @@ let s:disabled = 0
 
 " Clear the navigation history
 function s:BufSurfClear()
-    let w:history_index = 0
+    let w:history_index = -1
     let w:history = []
 endfunction
 
