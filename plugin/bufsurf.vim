@@ -20,12 +20,19 @@ call s:InitVariable('g:BufSurfMessages', 1)
 command BufSurfBack :call <SID>BufSurfBack()
 command BufSurfForward :call <SID>BufSurfForward()
 command BufSurfList :call <SID>BufSurfList()
+command BufSurfClear :call <SID>BufSurfClear()
 
 " List of buffer names that we should not track.
 let s:ignore_buffers = split(g:BufSurfIgnore, ',')
 
-" Indicates whether the plugin is enabled or not. 
+" Indicates whether the plugin is enabled or not.
 let s:disabled = 0
+
+" Clear the navigation history
+function s:BufSurfClear()
+    let w:history_index = 0
+    let w:history = []
+endfunction
 
 " Open the previous buffer in the navigation history for the current window.
 function s:BufSurfBack()
