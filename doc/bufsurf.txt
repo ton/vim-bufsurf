@@ -72,6 +72,10 @@ issue:
 
   :BufSurfList
 
+And finally, to clean the navigation history:
+
+  :BufSurfClear
+
 
 OPTIONS                                                      *bufsurf-options*
 
