@@ -112,11 +112,13 @@ function s:BufSurfList()
     for l:bufnr in w:history
         let l:buffer_name = bufname(l:bufnr)
         if bufnr("%") == l:bufnr
-            let l:buffer_name .= "*"
+            let l:buffer_name = "* " . l:buffer_name
+        else
+            let l:buffer_name = "  " . l:buffer_name
         endif
         let l:buffer_names = l:buffer_names + [l:buffer_name]
     endfor
-    call s:BufSurfEcho("window buffer navigation history (* = current): " . join(l:buffer_names, ', '))
+    call s:BufSurfEcho("window buffer navigation history (* = current):" . join(l:buffer_names, "\n"))
 endfunction
 
 " Returns whether recording the buffer navigation history is disabled for the
@@ -154,7 +156,11 @@ endfunction
 function s:BufSurfEcho(msg)
     if g:BufSurfMessages == 1
         echohl WarningMsg
-        echomsg 'BufSurf: ' . a:msg
+        let lines = split(a:msg, '\n')
+        echomsg 'BufSurf: ' . lines[0]
+        for l in lines[1:]
+          echomsg l
+        endfor
         echohl None
     endif
 endfunction
