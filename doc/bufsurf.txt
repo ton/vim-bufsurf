@@ -99,6 +99,11 @@ The following is a list of all available options:
         Indicates whether BufSurf (warning) messages should be displayed.
 
 
+    g:BufSurfPersistent              Boolean value; either 0 or 1 (default: 0)
+
+        This allows all windows to share the same history. 
+
+
 LICENSE                                                      *bufsurf-license*
 
 Copyright 2010-2012 Ton van den Heuvel. All rights reserved.

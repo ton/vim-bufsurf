@@ -16,6 +16,7 @@ endfunction
 
 call s:InitVariable('g:BufSurfIgnore', '')
 call s:InitVariable('g:BufSurfMessages', 1)
+call s:InitVariable('g:BufSurfPersistent', 0)
 
 command BufSurfBack :call <SID>BufSurfBack()
 command BufSurfForward :call <SID>BufSurfForward()
@@ -28,14 +29,27 @@ let s:ignore_buffers = split(g:BufSurfIgnore, ',')
 " Indicates whether the plugin is enabled or not.
 let s:disabled = 0
 
+" Persistent History
+let s:history = []
+let s:history_index = 0
+
 " Clear the navigation history
 function s:BufSurfClear()
+    " Loads Persistence 
+    call s:BufSurfLoadPersist()
+
     let w:history_index = -1
     let w:history = []
+    
+    " Sets Persistence 
+    call s:BufSurfSetPersist()
 endfunction
 
 " Open the previous buffer in the navigation history for the current window.
 function s:BufSurfBack()
+    " Loads Persistence 
+    call s:BufSurfLoadPersist()
+
     if w:history_index > 0
         let w:history_index -= 1
         let s:disabled = 1
@@ -44,10 +58,16 @@ function s:BufSurfBack()
     else
         call s:BufSurfEcho("reached start of window navigation history")
     endif
+    
+    " Sets Persistence 
+    call s:BufSurfSetPersist()
 endfunction
 
 " Open the next buffer in the navigation history for the current window.
 function s:BufSurfForward()
+    " Loads Persistence 
+    call s:BufSurfLoadPersist()
+
     if w:history_index < len(w:history) - 1
         let w:history_index += 1
         let s:disabled = 1
@@ -56,6 +76,9 @@ function s:BufSurfForward()
     else
         call s:BufSurfEcho("reached end of window navigation history")
     endif
+    
+    " Sets Persistence 
+    call s:BufSurfSetPersist()
 endfunction
 
 " Add the given buffer number to the navigation history for the window
@@ -66,6 +89,9 @@ function s:BufSurfAppend(bufnr)
     if s:BufSurfIsDisabled(a:bufnr)
         return
     endif
+
+    " Loads Persistence 
+    call s:BufSurfLoadPersist()
 
     " In case no navigation history exists for the current window, initialize
     " the navigation history.
@@ -104,6 +130,9 @@ function s:BufSurfAppend(bufnr)
     if !l:is_buffer_listed
         let w:history = insert(w:history, a:bufnr, w:history_index)
     endif
+
+    " Sets Persistence 
+    call s:BufSurfSetPersist()
 endfunction
 
 " Displays buffer navigation history for the current window.
@@ -139,6 +168,9 @@ endfunction
 
 " Remove buffer with number bufnr from all navigation histories.
 function s:BufSurfDelete(bufnr)
+    " Loads Persistence 
+    call s:BufSurfLoadPersist()
+
     if s:BufSurfIsDisabled(a:bufnr)
         return
     endif
@@ -150,6 +182,9 @@ function s:BufSurfDelete(bufnr)
     if w:history_index >= len(w:history)
         let w:history_index = len(w:history) - 1
     endif
+
+    " Loads Persistence 
+    call s:BufSurfSetPersist()
 endfunction
 
 " Echo a BufSurf message in the Vim status line.
@@ -162,6 +197,24 @@ function s:BufSurfEcho(msg)
           echomsg l
         endfor
         echohl None
+    endif
+endfunction
+
+" Get Window Index
+function s:BufSurfLoadPersist()
+    if len(s:history) || exists('w:history_index') 
+        if g:BufSurfPersistent == 1
+            let w:history = s:history
+            let w:history_index = s:history_index 
+        endif
+    endif
+endfunction
+
+" Set Window Index 
+function s:BufSurfSetPersist()
+    if g:BufSurfPersistent == 1
+        let s:history = w:history
+        let s:history_index = w:history_index
     endif
 endfunction
 
