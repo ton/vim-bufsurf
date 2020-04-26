@@ -99,6 +99,16 @@ The following is a list of all available options:
         Indicates whether BufSurf (warning) messages should be displayed.
 
 
+    |g:BufSurfHistory|              Int value; (default: 15)
+
+        Limits history to x number of entries by pruning the oldest 
+        references based on the current position in the index.
+
+    |g:BufSurfPersistence|              Int value; (default: 15) (default: 0)
+        
+        Indicates whether history is shared between windows. 
+        
+
 LICENSE                                                      *bufsurf-license*
 
 Copyright 2010-2012 Ton van den Heuvel. All rights reserved.
