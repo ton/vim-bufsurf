@@ -170,5 +170,5 @@ augroup BufSurf
   autocmd!
   autocmd BufEnter * :call s:BufSurfAppend(winbufnr(winnr()))
   autocmd WinEnter * :call s:BufSurfAppend(winbufnr(winnr()))
-  autocmd BufWipeout * :call s:BufSurfDelete(winbufnr(winnr()))
+  autocmd BufWipeout * :call s:BufSurfDelete(str2nr(expand('<abuf>')))
 augroup End
