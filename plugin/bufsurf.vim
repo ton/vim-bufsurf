@@ -20,6 +20,7 @@ call s:InitVariable('g:BufSurfMessages', 1)
 command BufSurfBack :call <SID>BufSurfBack()
 command BufSurfForward :call <SID>BufSurfForward()
 command BufSurfList :call <SID>BufSurfList()
+command BufSurfListAll :call <SID>BufSurfListAll()
 command BufSurfClear :call <SID>BufSurfClear()
 
 " List of buffer names that we should not track.
@@ -112,13 +113,50 @@ function s:BufSurfList()
     for l:bufnr in w:history
         let l:buffer_name = bufname(l:bufnr)
         if bufnr("%") == l:bufnr
-            let l:buffer_name = "* " . l:buffer_name
+            let l:buffer_name = "*>" . l:buffer_name
         else
-            let l:buffer_name = "  " . l:buffer_name
+            let l:buffer_name = " >" . l:buffer_name
         endif
         let l:buffer_names = l:buffer_names + [l:buffer_name]
     endfor
     call s:BufSurfEcho("window buffer navigation history (* = current):" . join(l:buffer_names, "\n"))
+endfunction
+
+function s:BufSurfListAll()
+    let name_lines = []
+
+    for tab_info in gettabinfo()
+        for win_id in tab_info.windows
+            call add(name_lines, '')
+            if win_getid() == win_id
+                let cur_str = '*>'
+            else
+                let cur_str = ' >'
+            endif
+            let fmt_win = cur_str . 'tab: ' . tab_info.tabnr . ' window: ' . win_id2win(win_id)
+            call add(name_lines, fmt_win)
+
+            let history = gettabwinvar(tab_info.tabnr, win_id, 'history')
+            let history_index = gettabwinvar(tab_info.tabnr, win_id, 'history_index')
+
+            if type(history) != v:t_list
+                continue
+            endif
+
+            for hist_idx in range(len(history))
+                let name = bufname(history[hist_idx])
+                if history_index == hist_idx
+                    let cur_str = '  *>'
+                else
+                    let cur_str = '   >'
+                endif
+                let fmt_name = cur_str . name
+                call add(name_lines, fmt_name)
+            endfor
+        endfor
+    endfor
+
+    call s:BufSurfEcho('window buffer nav hist (* = current):' . join(name_lines, "\n"))
 endfunction
 
 " Returns whether recording the buffer navigation history is disabled for the
