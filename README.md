@@ -29,3 +29,10 @@ then `:bp(revious)` in the last buffer (containing `B`) would open up buffer
 `A`, where `C` is preferable. This plugin supplies the user with the commands
 `:BufSurfForward` and `:BufSurfBack` to navigate buffers forwards and backwards
 according to the navigation history.
+
+It also provides `<Plug>` mappings:
+
+```vimL
+nmap ]b <Plug>(buf-surf-forward)
+nmap [b <Plug>(buf-surf-back)
+```
