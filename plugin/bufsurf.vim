@@ -113,9 +113,9 @@ function s:BufSurfList()
     for l:bufnr in w:history
         let l:buffer_name = bufname(l:bufnr)
         if bufnr("%") == l:bufnr
-            let l:buffer_name = "*>" . l:buffer_name
+            let l:buffer_name = "* >" . l:buffer_name
         else
-            let l:buffer_name = " >" . l:buffer_name
+            let l:buffer_name = "  >" . l:buffer_name
         endif
         let l:buffer_names = l:buffer_names + [l:buffer_name]
     endfor
