@@ -143,7 +143,7 @@ function s:BufSurfDelete(bufnr)
         return
     endif
 
-    " Go into each window of each tab and remove the buffer from each window's history
+    " Go into each window of each tab and remove the buffer from each window's history.
     for tab_info in gettabinfo()
         for win_idx in tab_info.windows
             let history = gettabwinvar(tab_info.tabnr, win_idx, 'history')
@@ -153,17 +153,8 @@ function s:BufSurfDelete(bufnr)
             let history_index = gettabwinvar(tab_info.tabnr, win_idx, 'history_index')
 
             call filter(history, 'v:val != ' . a:bufnr)
-            " Remove duplicate buffers that have been made adjacent from the deletion
-            let remove_index = 0
-            while remove_index < len(history) - 1
-                if history[remove_index] == history[remove_index + 1]
-                    call remove(history, remove_index)
-                    " Stay at the current index
-                    let remove_index -= 1
-                endif
-
-                let remove_index += 1
-            endwhile
+            " Remove duplicate buffers that have been made adjacent from the deletion.
+            call uniq(history)
             call settabwinvar(tab_info.tabnr, win_idx, 'history', history)
 
             " In case the current window history index is no longer valid, move it within boundaries.
