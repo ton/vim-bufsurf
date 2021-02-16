@@ -122,6 +122,7 @@ function s:BufSurfList()
     call s:BufSurfEcho("window buffer navigation history (* = current):" . join(l:buffer_names, "\n"))
 endfunction
 
+" Displays buffer navigation history for all windows in all tabs.
 function s:BufSurfListAll()
     let name_lines = []
 
