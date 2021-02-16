@@ -129,9 +129,9 @@ function s:BufSurfListAll()
         for win_id in tab_info.windows
             call add(name_lines, '')
             if win_getid() == win_id
-                let cur_str = '*>'
+                let cur_str = '* >'
             else
-                let cur_str = ' >'
+                let cur_str = '  >'
             endif
             let fmt_win = cur_str . 'tab: ' . tab_info.tabnr . ' window: ' . win_id2win(win_id)
             call add(name_lines, fmt_win)
@@ -146,9 +146,9 @@ function s:BufSurfListAll()
             for hist_idx in range(len(history))
                 let name = bufname(history[hist_idx])
                 if history_index == hist_idx
-                    let cur_str = '  *>'
+                    let cur_str = '  * >'
                 else
-                    let cur_str = '   >'
+                    let cur_str = '    >'
                 endif
                 let fmt_name = cur_str . name
                 call add(name_lines, fmt_name)
